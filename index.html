@@ -508,22 +508,14 @@ function showGcalDialog(title, startDate, deadline) {
 }
 
 function buildGcalUrl(title, dateStr) {
-  // dateStr: "2025-05-22" → "20250522"
+  // dateStr: "2025-05-22" → "20250522T100000/20250522T110000"（10:00〜11:00）
   const d = dateStr.replace(/-/g, '');
-  // 終日予定として作成（次の日をend日に設定）
-  const endDate = nextDay(dateStr).replace(/-/g, '');
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: title,
-    dates: `${d}/${endDate}`,
+    dates: `${d}T100000/${d}T110000`,
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-function nextDay(dateStr) {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().slice(0, 10);
 }
 
 function fmtDateJP(d) {
