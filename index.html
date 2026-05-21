@@ -26,8 +26,6 @@ body {
   display: flex;
   flex-direction: column;
 }
-
-/* ── Header ── */
 header {
   background: var(--main);
   color: white;
@@ -38,8 +36,6 @@ header {
 }
 .header-title { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
 .header-meta  { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-
-/* ── Board ── */
 .board {
   flex: 1;
   overflow-x: auto;
@@ -52,8 +48,6 @@ header {
   align-items: flex-start;
 }
 .board::-webkit-scrollbar { display: none; }
-
-/* ── List ── */
 .list {
   flex-shrink: 0;
   width: 280px;
@@ -89,8 +83,6 @@ header {
   border-radius: 6px; line-height: 1; display: flex; align-items: center;
 }
 .list-menu-btn:active { background: var(--light-pink); }
-
-/* ── Cards area ── */
 .cards {
   flex: 1; overflow-y: auto;
   padding: 8px; display: flex;
@@ -98,12 +90,7 @@ header {
   -webkit-overflow-scrolling: touch;
 }
 .cards::-webkit-scrollbar { display: none; }
-.cards-empty {
-  text-align: center; color: var(--light-pink);
-  font-size: 13px; padding: 16px 8px;
-}
-
-/* ── Card ── */
+.cards-empty { text-align: center; color: var(--light-pink); font-size: 13px; padding: 16px 8px; }
 .card {
   background: var(--bg);
   border-radius: 12px;
@@ -115,217 +102,113 @@ header {
 }
 .card:active { box-shadow: 0 4px 14px var(--shadow); }
 .card.drag-ghost { opacity: 0.35; }
-.card-title {
-  font-size: 14px; font-weight: 600;
-  color: var(--text-dark); line-height: 1.45;
-  margin-bottom: 4px;
-}
-.card-meta {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  font-size: 11px; color: var(--text-meta); margin-top: 4px;
-}
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-dark); line-height: 1.45; margin-bottom: 4px; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--text-meta); margin-top: 4px; }
 .card-date { display: flex; align-items: center; gap: 3px; }
 .card-date svg { width: 12px; height: 12px; flex-shrink: 0; }
 .card-progress { margin-top: 8px; }
 .progress-label { font-size: 11px; color: var(--text-meta); margin-bottom: 4px; }
-.progress-bar-bg {
-  height: 5px; background: var(--light-pink);
-  border-radius: 3px; overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%; background: var(--accent);
-  border-radius: 3px; transition: width 0.3s;
-}
-
-/* ── Add card / add list buttons ── */
+.progress-bar-bg { height: 5px; background: var(--light-pink); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
 .add-card-btn {
-  margin: 4px 8px 10px;
-  padding: 9px;
-  border: 2px dashed var(--light-pink);
-  border-radius: 10px;
-  background: none; color: var(--accent);
-  font-size: 13px; cursor: pointer;
-  width: calc(100% - 16px); text-align: center;
-  font-family: inherit;
+  margin: 4px 8px 10px; padding: 9px;
+  border: 2px dashed var(--light-pink); border-radius: 10px;
+  background: none; color: var(--accent); font-size: 13px; cursor: pointer;
+  width: calc(100% - 16px); text-align: center; font-family: inherit;
 }
 .add-card-btn:active { background: rgba(244,192,209,0.3); }
 .add-list-btn {
   flex-shrink: 0; width: 260px; height: 56px;
-  border: 2px dashed var(--light-pink);
-  border-radius: 16px;
-  background: rgba(255,255,255,0.7);
-  color: var(--accent); font-size: 14px;
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  gap: 6px; scroll-snap-align: start;
-  font-family: inherit;
+  border: 2px dashed var(--light-pink); border-radius: 16px;
+  background: rgba(255,255,255,0.7); color: var(--accent); font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 6px; scroll-snap-align: start; font-family: inherit;
 }
 .add-list-btn:active { background: var(--white); }
-
-/* ── Overlay ── */
 .overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.45);
-  z-index: 100;
-  display: none; align-items: flex-end;
+  z-index: 100; display: none; align-items: flex-end;
 }
 .overlay.active { display: flex; }
-
-/* ── Bottom Sheet ── */
 .sheet {
-  background: var(--white);
-  width: 100%;
+  background: var(--white); width: 100%;
   border-radius: 22px 22px 0 0;
-  max-height: 92dvh;
-  overflow-y: auto;
+  max-height: 92dvh; overflow-y: auto;
   padding-bottom: max(24px, env(safe-area-inset-bottom));
   animation: slideUp 0.25s cubic-bezier(.32,.72,0,1);
 }
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-.sheet-handle {
-  width: 40px; height: 4px;
-  background: var(--light-pink);
-  border-radius: 2px;
-  margin: 14px auto 0;
-}
-.sheet-title {
-  font-size: 17px; font-weight: 700;
-  color: var(--text-dark);
-  padding: 14px 20px 12px;
-  border-bottom: 1px solid var(--light-pink);
-}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 40px; height: 4px; background: var(--light-pink); border-radius: 2px; margin: 14px auto 0; }
+.sheet-title { font-size: 17px; font-weight: 700; color: var(--text-dark); padding: 14px 20px 12px; border-bottom: 1px solid var(--light-pink); }
 .sheet-body { padding: 16px 20px; }
-
-/* ── Form ── */
 .form-group { margin-bottom: 16px; }
-.form-label {
-  font-size: 11px; font-weight: 700;
-  color: var(--text-meta); margin-bottom: 6px;
-  display: block; text-transform: uppercase; letter-spacing: 0.6px;
-}
+.form-label { font-size: 11px; font-weight: 700; color: var(--text-meta); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.6px; }
 .form-input, .form-textarea {
-  width: 100%; padding: 12px;
-  border: 1.5px solid var(--light-pink);
-  border-radius: 10px; font-size: 15px;
-  color: var(--text-dark); background: var(--bg);
-  outline: none; font-family: inherit;
-  -webkit-appearance: none;
+  width: 100%; padding: 12px; border: 1.5px solid var(--light-pink);
+  border-radius: 10px; font-size: 15px; color: var(--text-dark);
+  background: var(--bg); outline: none; font-family: inherit; -webkit-appearance: none;
 }
 .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
 .form-textarea { resize: none; min-height: 80px; }
 .date-row { display: flex; gap: 12px; }
 .date-row > div { flex: 1; }
-
-/* ── Color picker ── */
 .color-picker { display: flex; gap: 14px; }
 .color-option {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  cursor: pointer;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid transparent; cursor: pointer;
   transition: transform 0.1s, border-color 0.1s;
 }
 .color-option.selected { border-color: var(--text-dark); transform: scale(1.15); }
-
-/* ── Buttons ── */
 .btn-row { display: flex; gap: 8px; margin-top: 6px; }
-.btn {
-  flex: 1; padding: 14px;
-  border-radius: 12px; font-size: 15px;
-  font-weight: 700; border: none;
-  cursor: pointer; font-family: inherit;
-  transition: opacity 0.15s;
-}
+.btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .btn:active { opacity: 0.8; }
 .btn-primary  { background: var(--main); color: white; }
 .btn-secondary { background: var(--light-pink); color: var(--text-dark); }
 .btn-danger   { background: #e63060; color: white; }
-
-/* ── Subtasks ── */
 .subtask-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.subtask-row {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--bg);
-  border: 1.5px solid var(--light-pink);
-  border-radius: 10px; padding: 8px 10px;
-}
-.subtask-check {
-  width: 22px; height: 22px;
-  border: 2px solid var(--light-pink);
-  border-radius: 50%; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: background 0.15s, border-color 0.15s;
-}
+.subtask-row { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1.5px solid var(--light-pink); border-radius: 10px; padding: 8px 10px; }
+.subtask-check { width: 22px; height: 22px; border: 2px solid var(--light-pink); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, border-color 0.15s; }
 .subtask-check.done { background: var(--accent); border-color: var(--accent); }
-.subtask-check.done::after {
-  content: '✓'; color: white;
-  font-size: 12px; font-weight: 700;
-}
-.subtask-title-input {
-  flex: 1; border: none; background: transparent;
-  font-size: 14px; color: var(--text-dark);
-  outline: none; font-family: inherit;
-}
-.subtask-del-btn {
-  background: none; border: none;
-  color: #ccc; font-size: 20px;
-  cursor: pointer; padding: 0 2px; line-height: 1;
-}
+.subtask-check.done::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+.subtask-title-input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--text-dark); outline: none; font-family: inherit; }
+.subtask-del-btn { background: none; border: none; color: #ccc; font-size: 20px; cursor: pointer; padding: 0 2px; line-height: 1; }
 .subtask-del-btn:active { color: #e63060; }
-.add-subtask-btn {
-  display: flex; align-items: center; gap: 6px;
-  background: none; border: 1.5px dashed var(--light-pink);
-  border-radius: 10px; padding: 9px 12px;
-  color: var(--accent); font-size: 13px;
-  cursor: pointer; width: 100%; font-family: inherit;
-}
+.add-subtask-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1.5px dashed var(--light-pink); border-radius: 10px; padding: 9px 12px; color: var(--accent); font-size: 13px; cursor: pointer; width: 100%; font-family: inherit; }
 .add-subtask-btn:active { background: rgba(244,192,209,0.3); }
-
-/* ── Menu popup ── */
-.menu-popup {
-  position: fixed;
-  background: white; border-radius: 14px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-  z-index: 200; overflow: hidden; min-width: 160px;
-}
-.menu-item {
-  padding: 14px 18px; font-size: 15px;
-  cursor: pointer; color: var(--text-dark);
-  border-bottom: 1px solid #fde8ef;
-}
+.menu-popup { position: fixed; background: white; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); z-index: 200; overflow: hidden; min-width: 160px; }
+.menu-item { padding: 14px 18px; font-size: 15px; cursor: pointer; color: var(--text-dark); border-bottom: 1px solid #fde8ef; }
 .menu-item:last-child { border-bottom: none; }
 .menu-item:active { background: var(--bg); }
 .menu-item.danger { color: #e63060; }
+.dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; display: none; align-items: center; justify-content: center; padding: 24px; }
+.dialog-overlay.active { display: flex; }
+.dialog { background: white; border-radius: 18px; padding: 24px 20px 20px; width: 100%; max-width: 340px; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+.dialog-title { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+.dialog-msg   { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+.drop-placeholder { height: 48px; border: 2px dashed var(--accent); border-radius: 10px; background: rgba(212,83,126,0.06); }
 
-/* ── Confirm dialog ── */
-.dialog-overlay {
+/* ── Google Calendar popup ── */
+.gcal-dialog {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 300; display: none;
+  background: rgba(0,0,0,0.5);
+  z-index: 400; display: none;
   align-items: center; justify-content: center;
   padding: 24px;
 }
-.dialog-overlay.active { display: flex; }
-.dialog {
-  background: white; border-radius: 18px;
+.gcal-dialog.active { display: flex; }
+.gcal-box {
+  background: white; border-radius: 20px;
   padding: 24px 20px 20px;
   width: 100%; max-width: 340px;
   animation: fadeIn 0.2s;
 }
-@keyframes fadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-.dialog-title { font-size: 17px; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
-.dialog-msg   { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
-
-/* ── Drop placeholder ── */
-.drop-placeholder {
-  height: 48px;
-  border: 2px dashed var(--accent);
-  border-radius: 10px;
-  background: rgba(212,83,126,0.06);
-}
+.gcal-icon { font-size: 36px; text-align: center; margin-bottom: 10px; }
+.gcal-title { font-size: 17px; font-weight: 700; color: var(--text-dark); text-align: center; margin-bottom: 8px; }
+.gcal-msg { font-size: 13px; color: #666; line-height: 1.6; text-align: center; margin-bottom: 20px; }
+.gcal-dates { background: var(--bg); border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px; color: var(--text-meta); line-height: 2; }
+.gcal-dates strong { color: var(--text-dark); }
 </style>
 </head>
 <body>
@@ -418,63 +301,63 @@ header {
   </div>
 </div>
 
+<!-- ── Google Calendar Dialog ── -->
+<div class="gcal-dialog" id="gcal-dialog">
+  <div class="gcal-box">
+    <div class="gcal-icon">📅</div>
+    <div class="gcal-title">Googleカレンダーと連携しますか？</div>
+    <div class="gcal-msg">着手日・締め切り日をGoogleカレンダーに登録します。</div>
+    <div class="gcal-dates" id="gcal-dates"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="gcalNo()">しない</button>
+      <button class="btn btn-primary"   onclick="gcalYes()">連携する</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Menu ── -->
 <div id="menu-popup"   class="menu-popup" style="display:none"></div>
 <div id="menu-backdrop" style="position:fixed;inset:0;z-index:199;display:none" onclick="closeMenu()"></div>
 
 <script>
-// ════════════════════════════════════════
+// ════════════════════════════
 // Data
-// ════════════════════════════════════════
+// ════════════════════════════
 let data = { lists: [] };
-let editingListId   = null;
-let editingCardId   = null;
+let editingListId     = null;
+let editingCardId     = null;
 let editingCardListId = null;
-let selectedColor   = '#D4537E';
-let editingSubtasks = [];
+let selectedColor     = '#D4537E';
+let editingSubtasks   = [];
+let pendingCardPayload = null; // Googleカレンダー連携待ちのデータ
 
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-// ── Persistence ──
-function save() {
-  localStorage.setItem('posting-board-v2', JSON.stringify(data));
-}
+function save() { localStorage.setItem('posting-board-v2', JSON.stringify(data)); }
 function load() {
-  try {
-    const raw = localStorage.getItem('posting-board-v2');
-    if (raw) data = JSON.parse(raw);
-  } catch(e) {}
+  try { const raw = localStorage.getItem('posting-board-v2'); if (raw) data = JSON.parse(raw); } catch(e) {}
   if (!Array.isArray(data.lists)) data.lists = [];
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════
 // Render
-// ════════════════════════════════════════
+// ════════════════════════════
 function render() {
-  const board   = document.getElementById('board');
-  const addBtn  = document.getElementById('add-list-btn');
+  const board  = document.getElementById('board');
+  const addBtn = document.getElementById('add-list-btn');
   board.querySelectorAll('.list').forEach(el => el.remove());
   data.lists.forEach(list => board.insertBefore(buildList(list), addBtn));
   updateHeader();
 }
-
 function updateHeader() {
   const total = data.lists.reduce((s, l) => s + l.cards.length, 0);
-  document.getElementById('header-meta').textContent =
-    `${data.lists.length} リスト・${total} カード`;
+  document.getElementById('header-meta').textContent = `${data.lists.length} リスト・${total} カード`;
 }
-
 function buildList(list) {
   const el = document.createElement('div');
-  el.className = 'list';
-  el.dataset.listId = list.id;
-
-  // Header
+  el.className = 'list'; el.dataset.listId = list.id;
   const hdr = document.createElement('div');
-  hdr.className = 'list-header';
-  hdr.dataset.listId = list.id;
+  hdr.className = 'list-header'; hdr.dataset.listId = list.id;
   hdr.innerHTML = `
     <span class="color-dot" style="background:${list.color}"></span>
     <span class="list-name">${esc(list.name)}</span>
@@ -482,149 +365,85 @@ function buildList(list) {
     <button class="list-menu-btn" onclick="openListMenu(event,'${list.id}')">⋯</button>
   `;
   setupListHeaderDrag(hdr);
-
-  // Cards
   const cardsEl = document.createElement('div');
-  cardsEl.className = 'cards';
-  cardsEl.dataset.listId = list.id;
-  if (list.cards.length === 0) {
-    cardsEl.innerHTML = '<div class="cards-empty">カードはありません</div>';
-  } else {
-    list.cards.forEach(card => cardsEl.appendChild(buildCard(card, list.id)));
-  }
+  cardsEl.className = 'cards'; cardsEl.dataset.listId = list.id;
+  if (list.cards.length === 0) { cardsEl.innerHTML = '<div class="cards-empty">カードはありません</div>'; }
+  else { list.cards.forEach(card => cardsEl.appendChild(buildCard(card, list.id))); }
   setupDropZone(cardsEl);
-
-  // Add card btn
   const addCard = document.createElement('button');
-  addCard.className = 'add-card-btn';
-  addCard.textContent = '＋ カードを追加';
+  addCard.className = 'add-card-btn'; addCard.textContent = '＋ カードを追加';
   addCard.onclick = () => openCreateCard(list.id);
-
-  el.appendChild(hdr);
-  el.appendChild(cardsEl);
-  el.appendChild(addCard);
+  el.appendChild(hdr); el.appendChild(cardsEl); el.appendChild(addCard);
   return el;
 }
-
 function buildCard(card, listId) {
   const el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.cardId = card.id;
-  el.dataset.listId = listId;
-
-  const subs  = card.subtasks || [];
-  const done  = subs.filter(s => s.done).length;
+  el.className = 'card'; el.dataset.cardId = card.id; el.dataset.listId = listId;
+  const subs = card.subtasks || [];
+  const done = subs.filter(s => s.done).length;
   const total = subs.length;
-  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
-
-  const calIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-    <rect x="2" y="3" width="12" height="11" rx="2"/>
-    <path d="M5 1v4M11 1v4M2 7h12"/>
-  </svg>`;
-  const dueIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-    <rect x="2" y="3" width="12" height="11" rx="2"/>
-    <path d="M5 1v4M11 1v4M2 7h12M5 11l2 2 4-4"/>
-  </svg>`;
-
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  const calIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v4M11 1v4M2 7h12"/></svg>`;
+  const dueIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v4M11 1v4M2 7h12M5 11l2 2 4-4"/></svg>`;
   let meta = '';
   if (card.startDate) meta += `<span class="card-date">${calIcon}${fmtDate(card.startDate)}</span>`;
   if (card.deadline)  meta += `<span class="card-date" style="color:#e63060">${dueIcon}${fmtDate(card.deadline)}</span>`;
-
   let prog = '';
-  if (total > 0) prog = `
-    <div class="card-progress">
-      <div class="progress-label">${done}/${total} 完了</div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width:${pct}%"></div>
-      </div>
-    </div>`;
-
-  el.innerHTML = `
-    <div class="card-title">${esc(card.title)}</div>
-    ${meta ? `<div class="card-meta">${meta}</div>` : ''}
-    ${prog}
-  `;
+  if (total > 0) prog = `<div class="card-progress"><div class="progress-label">${done}/${total} 完了</div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`;
+  el.innerHTML = `<div class="card-title">${esc(card.title)}</div>${meta ? `<div class="card-meta">${meta}</div>` : ''}${prog}`;
   el.addEventListener('click', () => openEditCard(card.id, listId));
   setupCardDrag(el);
   return el;
 }
+function fmtDate(d) { if (!d) return ''; const [, m, day] = d.split('-'); return `${+m}/${+day}`; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function fmtDate(d) {
-  if (!d) return '';
-  const [, m, day] = d.split('-');
-  return `${+m}/${+day}`;
-}
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ════════════════════════════════════════
+// ════════════════════════════
 // Sheet helpers
-// ════════════════════════════════════════
-function overlayTap(e, id) {
-  if (e.target === document.getElementById(id)) closeSheet(id);
-}
-function closeSheet(id) {
-  document.getElementById(id).classList.remove('active');
-}
+// ════════════════════════════
+function overlayTap(e, id) { if (e.target === document.getElementById(id)) closeSheet(id); }
+function closeSheet(id) { document.getElementById(id).classList.remove('active'); }
 
-// ════════════════════════════════════════
+// ════════════════════════════
 // List Sheet
-// ════════════════════════════════════════
+// ════════════════════════════
 function openCreateList() {
-  editingListId = null;
-  selectedColor = '#D4537E';
+  editingListId = null; selectedColor = '#D4537E';
   document.getElementById('list-sheet-title').textContent = 'リストを作成';
   document.getElementById('list-name-input').value = '';
   syncColorPicker();
   document.getElementById('list-sheet-overlay').classList.add('active');
   setTimeout(() => document.getElementById('list-name-input').focus(), 300);
 }
-
 function openEditList(listId) {
-  const list = data.lists.find(l => l.id === listId);
-  if (!list) return;
-  editingListId = listId;
-  selectedColor = list.color;
+  const list = data.lists.find(l => l.id === listId); if (!list) return;
+  editingListId = listId; selectedColor = list.color;
   document.getElementById('list-sheet-title').textContent = 'リストを編集';
   document.getElementById('list-name-input').value = list.name;
   syncColorPicker();
   document.getElementById('list-sheet-overlay').classList.add('active');
 }
-
 function syncColorPicker() {
-  document.querySelectorAll('.color-option').forEach(o =>
-    o.classList.toggle('selected', o.dataset.color === selectedColor));
+  document.querySelectorAll('.color-option').forEach(o => o.classList.toggle('selected', o.dataset.color === selectedColor));
 }
-
 function selectColor(el) {
   selectedColor = el.dataset.color;
   document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
 }
-
 function saveList() {
   const name = document.getElementById('list-name-input').value.trim();
   if (!name) { document.getElementById('list-name-input').focus(); return; }
-  if (editingListId) {
-    const list = data.lists.find(l => l.id === editingListId);
-    if (list) { list.name = name; list.color = selectedColor; }
-  } else {
-    data.lists.push({ id: uid(), name, color: selectedColor, cards: [] });
-  }
-  save(); render();
-  closeSheet('list-sheet-overlay');
+  if (editingListId) { const list = data.lists.find(l => l.id === editingListId); if (list) { list.name = name; list.color = selectedColor; } }
+  else { data.lists.push({ id: uid(), name, color: selectedColor, cards: [] }); }
+  save(); render(); closeSheet('list-sheet-overlay');
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════
 // Card Sheet
-// ════════════════════════════════════════
+// ════════════════════════════
 function openCreateCard(listId) {
-  editingCardId     = null;
-  editingCardListId = listId;
-  editingSubtasks   = [];
+  editingCardId = null; editingCardListId = listId; editingSubtasks = [];
   document.getElementById('card-sheet-title').textContent = 'カードを作成';
   document.getElementById('card-title-input').value    = '';
   document.getElementById('card-start-input').value    = '';
@@ -633,22 +452,16 @@ function openCreateCard(listId) {
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
     <button class="btn btn-secondary" onclick="closeSheet('card-sheet-overlay')">キャンセル</button>
-    <button class="btn btn-primary"   onclick="saveCard()">保存</button>
+    <button class="btn btn-primary" onclick="saveCard()">保存</button>
   `;
   document.getElementById('card-sheet-overlay').classList.add('active');
   setTimeout(() => document.getElementById('card-title-input').focus(), 300);
 }
-
 function openEditCard(cardId, listId) {
-  const list = data.lists.find(l => l.id === listId);
-  if (!list) return;
-  const card = list.cards.find(c => c.id === cardId);
-  if (!card) return;
-
-  editingCardId     = cardId;
-  editingCardListId = listId;
-  editingSubtasks   = (card.subtasks || []).map(s => ({...s}));
-
+  const list = data.lists.find(l => l.id === listId); if (!list) return;
+  const card = list.cards.find(c => c.id === cardId); if (!card) return;
+  editingCardId = cardId; editingCardListId = listId;
+  editingSubtasks = (card.subtasks || []).map(s => ({...s}));
   document.getElementById('card-sheet-title').textContent = 'カードを編集';
   document.getElementById('card-title-input').value    = card.title;
   document.getElementById('card-start-input').value    = card.startDate || '';
@@ -656,42 +469,112 @@ function openEditCard(cardId, listId) {
   document.getElementById('card-memo-input').value     = card.memo      || '';
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
-    <button class="btn btn-danger"    onclick="confirmDeleteCard()" style="flex:0.7">削除</button>
+    <button class="btn btn-danger" onclick="confirmDeleteCard()" style="flex:0.7">削除</button>
     <button class="btn btn-secondary" onclick="closeSheet('card-sheet-overlay')" style="flex:0.7">戻る</button>
-    <button class="btn btn-primary"   onclick="saveCard()">保存</button>
+    <button class="btn btn-primary" onclick="saveCard()">保存</button>
   `;
   document.getElementById('card-sheet-overlay').classList.add('active');
 }
 
+// ════════════════════════════
+// Save Card → Googleカレンダー連携
+// ════════════════════════════
 function saveCard() {
   const title = document.getElementById('card-title-input').value.trim();
   if (!title) { document.getElementById('card-title-input').focus(); return; }
-
-  const list = data.lists.find(l => l.id === editingCardListId);
-  if (!list) return;
-
-  const payload = {
-    title,
-    startDate: document.getElementById('card-start-input').value    || null,
-    deadline:  document.getElementById('card-deadline-input').value || null,
-    memo:      document.getElementById('card-memo-input').value.trim() || null,
-    subtasks:  editingSubtasks.map(s => ({...s}))
+  const list = data.lists.find(l => l.id === editingCardListId); if (!list) return;
+  const startDate = document.getElementById('card-start-input').value   || null;
+  const deadline  = document.getElementById('card-deadline-input').value || null;
+  pendingCardPayload = {
+    title, startDate, deadline,
+    memo:     document.getElementById('card-memo-input').value.trim() || null,
+    subtasks: editingSubtasks.map(s => ({...s}))
   };
-
-  if (editingCardId) {
-    const idx = list.cards.findIndex(c => c.id === editingCardId);
-    if (idx !== -1) list.cards[idx] = { ...list.cards[idx], ...payload };
-  } else {
-    list.cards.push({ id: uid(), ...payload });
-  }
-
-  save(); render();
   closeSheet('card-sheet-overlay');
+
+  // 着手日か締め切り日が入力されていればGoogleカレンダー連携ポップアップを表示
+  if (startDate || deadline) {
+    setTimeout(() => showGcalDialog(title, startDate, deadline), 250);
+  } else {
+    commitCard();
+  }
 }
 
-// ════════════════════════════════════════
+function commitCard() {
+  const list = data.lists.find(l => l.id === editingCardListId); if (!list || !pendingCardPayload) return;
+  if (editingCardId) {
+    const idx = list.cards.findIndex(c => c.id === editingCardId);
+    if (idx !== -1) list.cards[idx] = { ...list.cards[idx], ...pendingCardPayload };
+  } else {
+    list.cards.push({ id: uid(), ...pendingCardPayload });
+  }
+  save(); render(); pendingCardPayload = null;
+}
+
+// ════════════════════════════
+// Google Calendar Dialog
+// ════════════════════════════
+function showGcalDialog(title, startDate, deadline) {
+  let datesHtml = '';
+  if (startDate) datesHtml += `📌 <strong>着手日：</strong>${fmtDateJP(startDate)}（${esc(title)}）<br>`;
+  if (deadline)  datesHtml += `🏁 <strong>締め切り：</strong>${fmtDateJP(deadline)}（${esc(title)}）`;
+  document.getElementById('gcal-dates').innerHTML = datesHtml;
+  document.getElementById('gcal-dialog').classList.add('active');
+}
+
+function gcalYes() {
+  document.getElementById('gcal-dialog').classList.remove('active');
+  const p = pendingCardPayload;
+  if (!p) return;
+
+  // 着手日のカレンダーURLを生成して開く
+  if (p.startDate) {
+    const url = buildGcalUrl(p.title + '（着手）', p.startDate);
+    window.open(url, '_blank');
+  }
+  // 締め切り日のカレンダーURLを生成して開く（少し遅延）
+  if (p.deadline) {
+    setTimeout(() => {
+      const url = buildGcalUrl(p.title + '（締め切り）', p.deadline);
+      window.open(url, '_blank');
+    }, 500);
+  }
+  commitCard();
+}
+
+function gcalNo() {
+  document.getElementById('gcal-dialog').classList.remove('active');
+  commitCard();
+}
+
+function buildGcalUrl(title, dateStr) {
+  // dateStr: "2025-05-22" → "20250522"
+  const d = dateStr.replace(/-/g, '');
+  // 終日予定として作成（次の日をend日に設定）
+  const endDate = nextDay(dateStr).replace(/-/g, '');
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: title,
+    dates: `${d}/${endDate}`,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function nextDay(dateStr) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtDateJP(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${y}年${+m}月${+day}日`;
+}
+
+// ════════════════════════════
 // Subtasks
-// ════════════════════════════════════════
+// ════════════════════════════
 function renderSubtasks() {
   const container = document.getElementById('subtask-list');
   container.innerHTML = '';
@@ -700,78 +583,55 @@ function renderSubtasks() {
     row.className = 'subtask-row';
     row.innerHTML = `
       <div class="subtask-check ${sub.done ? 'done' : ''}" onclick="toggleEditSub(${i})"></div>
-      <input type="text" class="subtask-title-input"
-        value="${esc(sub.title)}" placeholder="サブタスク名"
-        oninput="editingSubtasks[${i}].title=this.value">
+      <input type="text" class="subtask-title-input" value="${esc(sub.title)}" placeholder="サブタスク名" oninput="editingSubtasks[${i}].title=this.value">
       <button class="subtask-del-btn" onclick="delEditSub(${i})">×</button>
     `;
     container.appendChild(row);
   });
 }
-
 function addSubtask() {
   editingSubtasks.push({ id: uid(), title: '', done: false });
   renderSubtasks();
   const inputs = document.querySelectorAll('.subtask-title-input');
   if (inputs.length) inputs[inputs.length - 1].focus();
 }
+function toggleEditSub(i) { editingSubtasks[i].done = !editingSubtasks[i].done; renderSubtasks(); }
+function delEditSub(i)    { editingSubtasks.splice(i, 1); renderSubtasks(); }
 
-function toggleEditSub(i) {
-  editingSubtasks[i].done = !editingSubtasks[i].done;
-  renderSubtasks();
-}
-
-function delEditSub(i) {
-  editingSubtasks.splice(i, 1);
-  renderSubtasks();
-}
-
-// ════════════════════════════════════════
+// ════════════════════════════
 // Delete
-// ════════════════════════════════════════
+// ════════════════════════════
 function confirmDeleteCard() {
   closeSheet('card-sheet-overlay');
   setTimeout(() => {
-    showConfirm(
-      'カードを削除しますか？',
-      'このカードとサブタスクはすべて削除されます。この操作は取り消せません。',
-      () => {
-        const list = data.lists.find(l => l.id === editingCardListId);
-        if (list) list.cards = list.cards.filter(c => c.id !== editingCardId);
-        save(); render();
-      }
-    );
+    showConfirm('カードを削除しますか？', 'このカードとサブタスクはすべて削除されます。この操作は取り消せません。', () => {
+      const list = data.lists.find(l => l.id === editingCardListId);
+      if (list) list.cards = list.cards.filter(c => c.id !== editingCardId);
+      save(); render();
+    });
   }, 250);
 }
-
 function confirmDeleteList(listId) {
-  const list = data.lists.find(l => l.id === listId);
-  if (!list) return;
+  const list = data.lists.find(l => l.id === listId); if (!list) return;
   showConfirm(
     'リストを削除しますか？',
     list.cards.length > 0
       ? `「${list.name}」と中の ${list.cards.length} 件のカードがすべて削除されます。この操作は取り消せません。`
       : `「${list.name}」を削除します。この操作は取り消せません。`,
-    () => {
-      data.lists = data.lists.filter(l => l.id !== listId);
-      save(); render();
-    }
+    () => { data.lists = data.lists.filter(l => l.id !== listId); save(); render(); }
   );
 }
-
 function showConfirm(title, msg, cb) {
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-msg').textContent   = msg;
   document.getElementById('confirm-ok-btn').onclick    = () => { closeConfirm(); cb(); };
   document.getElementById('confirm-overlay').classList.add('active');
 }
-function closeConfirm() {
-  document.getElementById('confirm-overlay').classList.remove('active');
-}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('active'); }
 
-// ════════════════════════════════════════
+// ════════════════════════════
 // List menu
-// ════════════════════════════════════════
+// ════════════════════════════
 function openListMenu(e, listId) {
   e.stopPropagation();
   const popup = document.getElementById('menu-popup');
@@ -791,62 +651,34 @@ function closeMenu() {
   document.getElementById('menu-backdrop').style.display = 'none';
 }
 
-// ════════════════════════════════════════
-// Drag & Drop — Cards (touch)
-// ════════════════════════════════════════
-let activeCard   = null; // { id, listId }
-let activeCardEl = null;
-let dragClone    = null;
-let placeholder  = null;
-
+// ════════════════════════════
+// Drag & Drop — Cards
+// ════════════════════════════
+let activeCard = null, activeCardEl = null, dragClone = null, placeholder = null;
 function setupCardDrag(el) {
   let ox, oy, moved = false, startT;
-
-  el.addEventListener('touchstart', e => {
-    ox = e.touches[0].clientX;
-    oy = e.touches[0].clientY;
-    startT = Date.now();
-    moved = false;
-  }, { passive: true });
-
+  el.addEventListener('touchstart', e => { ox = e.touches[0].clientX; oy = e.touches[0].clientY; startT = Date.now(); moved = false; }, { passive: true });
   el.addEventListener('touchmove', e => {
-    const dx = e.touches[0].clientX - ox;
-    const dy = e.touches[0].clientY - oy;
+    const dx = e.touches[0].clientX - ox, dy = e.touches[0].clientY - oy;
     if (!moved && (Math.abs(dx) > 8 || Math.abs(dy) > 8) && Date.now() - startT > 120) {
-      moved = true;
-      activeCard   = { id: el.dataset.cardId, listId: el.dataset.listId };
-      activeCardEl = el;
-
-      // clone
+      moved = true; activeCard = { id: el.dataset.cardId, listId: el.dataset.listId }; activeCardEl = el;
       dragClone = el.cloneNode(true);
-      dragClone.style.cssText = `
-        position:fixed; width:${el.offsetWidth}px; opacity:0.88; pointer-events:none;
-        z-index:1000; transform:rotate(2deg) scale(1.02);
-        box-shadow:0 10px 30px rgba(0,0,0,0.25); border-radius:12px;
-      `;
+      dragClone.style.cssText = `position:fixed;width:${el.offsetWidth}px;opacity:0.88;pointer-events:none;z-index:1000;transform:rotate(2deg) scale(1.02);box-shadow:0 10px 30px rgba(0,0,0,0.25);border-radius:12px;`;
       document.body.appendChild(dragClone);
-
-      // placeholder
-      placeholder = document.createElement('div');
-      placeholder.className = 'drop-placeholder';
-      el.parentNode.insertBefore(placeholder, el);
-      el.classList.add('drag-ghost');
+      placeholder = document.createElement('div'); placeholder.className = 'drop-placeholder';
+      el.parentNode.insertBefore(placeholder, el); el.classList.add('drag-ghost');
     }
-
     if (moved && dragClone) {
-      e.preventDefault();
-      const t = e.touches[0];
+      e.preventDefault(); const t = e.touches[0];
       dragClone.style.left = (t.clientX - dragClone.offsetWidth / 2) + 'px';
       dragClone.style.top  = (t.clientY - 36) + 'px';
       movePlaceholder(t.clientX, t.clientY);
     }
   }, { passive: false });
-
   el.addEventListener('touchend', e => {
     if (!moved) return;
     if (dragClone) { dragClone.remove(); dragClone = null; }
     if (activeCardEl) activeCardEl.classList.remove('drag-ghost');
-
     if (placeholder) {
       const targetListEl = placeholder.closest('.cards');
       if (targetListEl) {
@@ -857,152 +689,87 @@ function setupCardDrag(el) {
           const cardIdx = srcList.cards.findIndex(c => c.id === activeCard.id);
           if (cardIdx !== -1) {
             const [card] = srcList.cards.splice(cardIdx, 1);
-            // find insertion index from placeholder position
             const siblings = Array.from(targetListEl.querySelectorAll('.card:not(.drag-ghost)'));
             const phIndex  = Array.from(targetListEl.children).indexOf(placeholder);
             let insertAt = 0;
-            for (let i = 0; i < siblings.length; i++) {
-              const sib = siblings[i];
-              const sibIdx = Array.from(targetListEl.children).indexOf(sib);
-              if (sibIdx < phIndex) insertAt = i + 1;
-            }
+            for (let i = 0; i < siblings.length; i++) { if (Array.from(targetListEl.children).indexOf(siblings[i]) < phIndex) insertAt = i + 1; }
             tgtList.cards.splice(insertAt, 0, card);
           }
         }
       }
       placeholder.remove(); placeholder = null;
     }
-
-    save(); render();
-    activeCard = null; activeCardEl = null;
+    save(); render(); activeCard = null; activeCardEl = null;
   });
 }
-
 function movePlaceholder(cx, cy) {
   if (!placeholder) return;
-  // find cards zone under cursor
   const allZones = document.querySelectorAll('.cards');
   let targetZone = null;
-  for (const zone of allZones) {
-    const r = zone.getBoundingClientRect();
-    if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
-      targetZone = zone; break;
-    }
-  }
-  if (!targetZone) {
-    // if near a zone edge
-    for (const zone of allZones) {
-      const r = zone.getBoundingClientRect();
-      if (cx >= r.left - 20 && cx <= r.right + 20 && cy >= r.top - 20 && cy <= r.bottom + 20) {
-        targetZone = zone; break;
-      }
-    }
-  }
+  for (const zone of allZones) { const r = zone.getBoundingClientRect(); if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) { targetZone = zone; break; } }
+  if (!targetZone) { for (const zone of allZones) { const r = zone.getBoundingClientRect(); if (cx >= r.left-20 && cx <= r.right+20 && cy >= r.top-20 && cy <= r.bottom+20) { targetZone = zone; break; } } }
   if (!targetZone) return;
-
-  // find insertion point
   const cards = Array.from(targetZone.querySelectorAll('.card:not(.drag-ghost)'));
   let insertBefore = null;
-  for (const card of cards) {
-    const r = card.getBoundingClientRect();
-    if (cy < r.top + r.height / 2) { insertBefore = card; break; }
-  }
-
-  if (insertBefore) {
-    targetZone.insertBefore(placeholder, insertBefore);
-  } else {
-    // empty text node check
-    const empty = targetZone.querySelector('.cards-empty');
-    if (empty) empty.remove();
-    targetZone.appendChild(placeholder);
-  }
+  for (const card of cards) { const r = card.getBoundingClientRect(); if (cy < r.top + r.height / 2) { insertBefore = card; break; } }
+  if (insertBefore) { targetZone.insertBefore(placeholder, insertBefore); }
+  else { const empty = targetZone.querySelector('.cards-empty'); if (empty) empty.remove(); targetZone.appendChild(placeholder); }
 }
 
-// ════════════════════════════════════════
-// Drag & Drop — Lists (touch)
-// ════════════════════════════════════════
-let activeDragListId = null;
+// ════════════════════════════
+// Drag & Drop — Lists
+// ════════════════════════════
 let activeDragListEl = null;
-
 function setupListHeaderDrag(headerEl) {
   let ox, moved = false, startT;
-
-  headerEl.addEventListener('touchstart', e => {
-    ox = e.touches[0].clientX;
-    moved = false;
-    startT = Date.now();
-  }, { passive: true });
-
+  headerEl.addEventListener('touchstart', e => { ox = e.touches[0].clientX; moved = false; startT = Date.now(); }, { passive: true });
   headerEl.addEventListener('touchmove', e => {
     const dx = Math.abs(e.touches[0].clientX - ox);
-    if (!moved && dx > 12 && Date.now() - startT > 180) {
-      moved = true;
-      activeDragListEl = headerEl.closest('.list');
-      activeDragListId = activeDragListEl.dataset.listId;
-      activeDragListEl.style.opacity = '0.45';
-    }
+    if (!moved && dx > 12 && Date.now() - startT > 180) { moved = true; activeDragListEl = headerEl.closest('.list'); activeDragListEl.style.opacity = '0.45'; }
     if (moved) {
-      e.preventDefault();
-      const t = e.touches[0];
+      e.preventDefault(); const t = e.touches[0];
       const target = document.elementFromPoint(t.clientX, t.clientY);
       const tgtList = target && target.closest('.list');
       if (tgtList && tgtList !== activeDragListEl) {
         const board = document.getElementById('board');
         const midX  = tgtList.getBoundingClientRect().left + tgtList.offsetWidth / 2;
-        if (t.clientX < midX) board.insertBefore(activeDragListEl, tgtList);
-        else                  board.insertBefore(activeDragListEl, tgtList.nextSibling);
+        if (t.clientX < midX) board.insertBefore(activeDragListEl, tgtList); else board.insertBefore(activeDragListEl, tgtList.nextSibling);
       }
     }
   }, { passive: false });
-
   headerEl.addEventListener('touchend', () => {
     if (!moved) return;
     if (activeDragListEl) activeDragListEl.style.opacity = '';
-    // sync order
     const ids = Array.from(document.querySelectorAll('#board .list')).map(el => el.dataset.listId);
     data.lists.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-    save(); render();
-    activeDragListEl = null; activeDragListId = null;
+    save(); render(); activeDragListEl = null;
   });
 }
-
 function setupDropZone(el) { /* handled by card touchend */ }
 
-// ════════════════════════════════════════
+// ════════════════════════════
 // Boot
-// ════════════════════════════════════════
+// ════════════════════════════
 load();
-
-// Seed sample data on first launch
 if (data.lists.length === 0) {
   data.lists = [
-    {
-      id: uid(), name: 'Instagram', color: '#D4537E', cards: [
-        {
-          id: uid(), title: '朝の美容ルーティン', startDate: null,
-          deadline: new Date(Date.now() + 86400000 * 3).toISOString().slice(0,10),
-          memo: 'リール形式で撮影', subtasks: [
-            { id: uid(), title: '撮影', done: true },
-            { id: uid(), title: '編集', done: true },
-            { id: uid(), title: '投稿文作成', done: false }
-          ]
-        }
-      ]
-    },
-    {
-      id: uid(), name: 'マキアブログ', color: '#9B8EC4', cards: [
-        {
-          id: uid(), title: 'コテレビュー記事', startDate: null,
-          deadline: null, memo: '', subtasks: []
-        }
-      ]
-    },
+    { id: uid(), name: 'Instagram', color: '#D4537E', cards: [
+      { id: uid(), title: '朝の美容ルーティン', startDate: null,
+        deadline: new Date(Date.now() + 86400000 * 3).toISOString().slice(0,10),
+        memo: 'リール形式で撮影', subtasks: [
+          { id: uid(), title: '撮影', done: true },
+          { id: uid(), title: '編集', done: true },
+          { id: uid(), title: '投稿文作成', done: false }
+        ]}
+    ]},
+    { id: uid(), name: 'マキアブログ', color: '#9B8EC4', cards: [
+      { id: uid(), title: 'コテレビュー記事', startDate: null, deadline: null, memo: '', subtasks: [] }
+    ]},
     { id: uid(), name: '案件', color: '#E8963A', cards: [] },
     { id: uid(), name: '完了', color: '#5B9E78', cards: [] }
   ];
   save();
 }
-
 render();
 </script>
 </body>
