@@ -199,6 +199,12 @@ header {
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .cal-btn:active { background: var(--light-pink); }
+
+/* ── Tags ── */
+.tag-inputs { display: flex; flex-direction: column; gap: 8px; }
+.tag-input { margin-bottom: 0 !important; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.card-tag { font-size: 11px; background: var(--light-pink); color: var(--text-dark); padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -269,6 +275,14 @@ header {
       <div class="form-group">
         <label class="form-label">メモ</label>
         <textarea class="form-textarea" id="card-memo-input" placeholder="メモを入力..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">タグ（最大3つ・10文字まで）</label>
+        <div class="tag-inputs">
+          <input type="text" class="form-input tag-input" id="card-tag-1" placeholder="タグ1" maxlength="10">
+          <input type="text" class="form-input tag-input" id="card-tag-2" placeholder="タグ2" maxlength="10">
+          <input type="text" class="form-input tag-input" id="card-tag-3" placeholder="タグ3" maxlength="10">
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">サブタスク</label>
@@ -370,7 +384,14 @@ function buildCard(card, listId) {
   if (card.deadline)  meta += `<span class="card-date" style="color:#e63060">${dueIcon}${fmtDate(card.deadline)}</span>`;
   let prog = '';
   if (total > 0) prog = `<div class="card-progress"><div class="progress-label">${done}/${total} 完了</div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div>`;
-  el.innerHTML = `<div class="card-title">${esc(card.title)}</div>${meta ? `<div class="card-meta">${meta}</div>` : ''}${prog}`;
+  const tags = (card.tags || []).slice(0,3);
+  const tagsHtml = tags.length
+    ? '<div class="card-tags">' + tags.map(t => {
+        const label = t.length > 10 ? t.slice(0,10) + '…' : t;
+        return `<span class="card-tag">${esc(label)}</span>`;
+      }).join('') + '</div>'
+    : '';
+  el.innerHTML = `<div class="card-title">${esc(card.title)}</div>${meta ? `<div class="card-meta">${meta}</div>` : ''}${tagsHtml}${prog}`;
   el.addEventListener('click', () => openEditCard(card.id, listId));
   setupCardDrag(el);
   return el;
@@ -429,6 +450,9 @@ function openCreateCard(listId) {
   document.getElementById('card-start-input').value    = '';
   document.getElementById('card-deadline-input').value = '';
   document.getElementById('card-memo-input').value     = '';
+  document.getElementById('card-tag-1').value = '';
+  document.getElementById('card-tag-2').value = '';
+  document.getElementById('card-tag-3').value = '';
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
     <button class="btn btn-secondary" onclick="closeSheet('card-sheet-overlay')">キャンセル</button>
@@ -447,6 +471,10 @@ function openEditCard(cardId, listId) {
   document.getElementById('card-start-input').value    = card.startDate || '';
   document.getElementById('card-deadline-input').value = card.deadline  || '';
   document.getElementById('card-memo-input').value     = card.memo      || '';
+  const tags = card.tags || ['','',''];
+  document.getElementById('card-tag-1').value = tags[0] || '';
+  document.getElementById('card-tag-2').value = tags[1] || '';
+  document.getElementById('card-tag-3').value = tags[2] || '';
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
     <button class="btn btn-danger" onclick="confirmDeleteCard()" style="flex:0.7">削除</button>
@@ -468,6 +496,7 @@ function saveCard() {
     startDate: document.getElementById('card-start-input').value    || null,
     deadline:  document.getElementById('card-deadline-input').value || null,
     memo:      document.getElementById('card-memo-input').value.trim() || null,
+    tags:      [1,2,3].map(i => document.getElementById('card-tag-'+i).value.trim()).filter(t => t),
     subtasks:  editingSubtasks.map(s => ({...s}))
   };
   if (editingCardId) {
