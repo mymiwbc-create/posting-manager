@@ -189,26 +189,16 @@ header {
 .dialog-msg   { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
 .drop-placeholder { height: 48px; border: 2px dashed var(--accent); border-radius: 10px; background: rgba(212,83,126,0.06); }
 
-/* ── Google Calendar popup ── */
-.gcal-dialog {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 400; display: none;
-  align-items: center; justify-content: center;
-  padding: 24px;
+/* ── Date with calendar button ── */
+.date-with-cal { display: flex; align-items: center; gap: 8px; }
+.date-with-cal .form-input { flex: 1; margin-bottom: 0; }
+.cal-btn {
+  flex-shrink: 0; width: 44px; height: 44px;
+  border: 1.5px solid var(--light-pink); border-radius: 10px;
+  background: var(--bg); font-size: 20px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.gcal-dialog.active { display: flex; }
-.gcal-box {
-  background: white; border-radius: 20px;
-  padding: 24px 20px 20px;
-  width: 100%; max-width: 340px;
-  animation: fadeIn 0.2s;
-}
-.gcal-icon { font-size: 36px; text-align: center; margin-bottom: 10px; }
-.gcal-title { font-size: 17px; font-weight: 700; color: var(--text-dark); text-align: center; margin-bottom: 8px; }
-.gcal-msg { font-size: 13px; color: #666; line-height: 1.6; text-align: center; margin-bottom: 20px; }
-.gcal-dates { background: var(--bg); border-radius: 10px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px; color: var(--text-meta); line-height: 2; }
-.gcal-dates strong { color: var(--text-dark); }
+.cal-btn:active { background: var(--light-pink); }
 </style>
 </head>
 <body>
@@ -262,14 +252,18 @@ header {
         <label class="form-label">タイトル *</label>
         <input type="text" class="form-input" id="card-title-input" placeholder="投稿タイトルを入力" maxlength="80">
       </div>
-      <div class="form-group date-row">
-        <div>
-          <label class="form-label">着手日</label>
+      <div class="form-group">
+        <label class="form-label">着手日</label>
+        <div class="date-with-cal">
           <input type="date" class="form-input" id="card-start-input">
+          <button class="cal-btn" onclick="openGcalFromInput('start')" title="Googleカレンダーに追加">📅</button>
         </div>
-        <div>
-          <label class="form-label">締め切り日</label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">締め切り日</label>
+        <div class="date-with-cal">
           <input type="date" class="form-input" id="card-deadline-input">
+          <button class="cal-btn" onclick="openGcalFromInput('deadline')" title="Googleカレンダーに追加">📅</button>
         </div>
       </div>
       <div class="form-group">
@@ -301,19 +295,6 @@ header {
   </div>
 </div>
 
-<!-- ── Google Calendar Dialog ── -->
-<div class="gcal-dialog" id="gcal-dialog">
-  <div class="gcal-box">
-    <div class="gcal-icon">📅</div>
-    <div class="gcal-title">Googleカレンダーと連携しますか？</div>
-    <div class="gcal-msg">着手日・締め切り日をGoogleカレンダーに登録します。</div>
-    <div class="gcal-dates" id="gcal-dates"></div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="gcalNo()">しない</button>
-      <button class="btn btn-primary"   onclick="gcalYes()">連携する</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── Menu ── -->
 <div id="menu-popup"   class="menu-popup" style="display:none"></div>
@@ -329,7 +310,6 @@ let editingCardId     = null;
 let editingCardListId = null;
 let selectedColor     = '#D4537E';
 let editingSubtasks   = [];
-let pendingCardPayload = null; // Googleカレンダー連携待ちのデータ
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
@@ -477,38 +457,43 @@ function openEditCard(cardId, listId) {
 }
 
 // ════════════════════════════
-// Save Card → Googleカレンダー連携
+// Save Card（シンプル版・ポップアップなし）
 // ════════════════════════════
 function saveCard() {
   const title = document.getElementById('card-title-input').value.trim();
   if (!title) { document.getElementById('card-title-input').focus(); return; }
   const list = data.lists.find(l => l.id === editingCardListId); if (!list) return;
-  const startDate = document.getElementById('card-start-input').value   || null;
-  const deadline  = document.getElementById('card-deadline-input').value || null;
-  pendingCardPayload = {
-    title, startDate, deadline,
-    memo:     document.getElementById('card-memo-input').value.trim() || null,
-    subtasks: editingSubtasks.map(s => ({...s}))
+  const payload = {
+    title,
+    startDate: document.getElementById('card-start-input').value    || null,
+    deadline:  document.getElementById('card-deadline-input').value || null,
+    memo:      document.getElementById('card-memo-input').value.trim() || null,
+    subtasks:  editingSubtasks.map(s => ({...s}))
   };
-  closeSheet('card-sheet-overlay');
-
-  // 着手日か締め切り日が入力されていればGoogleカレンダー連携ポップアップを表示
-  if (startDate || deadline) {
-    setTimeout(() => showGcalDialog(title, startDate, deadline), 250);
-  } else {
-    commitCard();
-  }
-}
-
-function commitCard() {
-  const list = data.lists.find(l => l.id === editingCardListId); if (!list || !pendingCardPayload) return;
   if (editingCardId) {
     const idx = list.cards.findIndex(c => c.id === editingCardId);
-    if (idx !== -1) list.cards[idx] = { ...list.cards[idx], ...pendingCardPayload };
+    if (idx !== -1) list.cards[idx] = { ...list.cards[idx], ...payload };
   } else {
-    list.cards.push({ id: uid(), ...pendingCardPayload });
+    list.cards.push({ id: uid(), ...payload });
   }
-  save(); render(); pendingCardPayload = null;
+  save(); render();
+  closeSheet('card-sheet-overlay');
+}
+
+// ════════════════════════════
+// Googleカレンダーボタン（日付横）
+// ════════════════════════════
+function openGcalFromInput(type) {
+  const inputId = type === 'start' ? 'card-start-input' : 'card-deadline-input';
+  const dateVal = document.getElementById(inputId).value;
+  if (!dateVal) {
+    alert('先に日付を入力してください');
+    return;
+  }
+  const title    = document.getElementById('card-title-input').value.trim() || '投稿';
+  const label    = type === 'start' ? '（着手）' : '（締め切り）';
+  const url      = buildGcalUrl(title + label, dateVal);
+  window.open(url, '_blank');
 }
 
 // ════════════════════════════
@@ -520,31 +505,6 @@ function showGcalDialog(title, startDate, deadline) {
   if (deadline)  datesHtml += `🏁 <strong>締め切り：</strong>${fmtDateJP(deadline)}（${esc(title)}）`;
   document.getElementById('gcal-dates').innerHTML = datesHtml;
   document.getElementById('gcal-dialog').classList.add('active');
-}
-
-function gcalYes() {
-  document.getElementById('gcal-dialog').classList.remove('active');
-  const p = pendingCardPayload;
-  if (!p) return;
-
-  // 着手日のカレンダーURLを生成して開く
-  if (p.startDate) {
-    const url = buildGcalUrl(p.title + '（着手）', p.startDate);
-    window.open(url, '_blank');
-  }
-  // 締め切り日のカレンダーURLを生成して開く（少し遅延）
-  if (p.deadline) {
-    setTimeout(() => {
-      const url = buildGcalUrl(p.title + '（締め切り）', p.deadline);
-      window.open(url, '_blank');
-    }, 500);
-  }
-  commitCard();
-}
-
-function gcalNo() {
-  document.getElementById('gcal-dialog').classList.remove('active');
-  commitCard();
 }
 
 function buildGcalUrl(title, dateStr) {
