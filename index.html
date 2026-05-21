@@ -327,10 +327,38 @@ let editingSubtasks   = [];
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-function save() { localStorage.setItem('posting-board-v2', JSON.stringify(data)); }
-function load() {
+// LocalStorage（オフライン用バックアップ）
+function saveLocal() {
+  try { localStorage.setItem('posting-board-v2', JSON.stringify(data)); } catch(e) {}
+}
+function loadLocal() {
   try { const raw = localStorage.getItem('posting-board-v2'); if (raw) data = JSON.parse(raw); } catch(e) {}
   if (!Array.isArray(data.lists)) data.lists = [];
+}
+// Firestore保存
+async function save() {
+  saveLocal();
+  try {
+    if (window.db) {
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+      await setDoc(doc(window.db, 'boards', 'main'), { lists: data.lists });
+    }
+  } catch(e) { console.warn('Firestore save error:', e); }
+}
+// Firestore読み込み
+async function load() {
+  loadLocal();
+  try {
+    if (window.db) {
+      const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+      const snap = await getDoc(doc(window.db, 'boards', 'main'));
+      if (snap.exists()) {
+        data = snap.data();
+        if (!Array.isArray(data.lists)) data.lists = [];
+        saveLocal();
+      }
+    }
+  } catch(e) { console.warn('Firestore load error:', e); }
 }
 
 // ════════════════════════════
@@ -731,27 +759,37 @@ function setupDropZone(el) { /* handled by card touchend */ }
 // ════════════════════════════
 // Boot
 // ════════════════════════════
-load();
-if (data.lists.length === 0) {
-  data.lists = [
-    { id: uid(), name: 'Instagram', color: '#D4537E', cards: [
-      { id: uid(), title: '朝の美容ルーティン', startDate: null,
-        deadline: new Date(Date.now() + 86400000 * 3).toISOString().slice(0,10),
-        memo: 'リール形式で撮影', subtasks: [
-          { id: uid(), title: '撮影', done: true },
-          { id: uid(), title: '編集', done: true },
-          { id: uid(), title: '投稿文作成', done: false }
-        ]}
-    ]},
-    { id: uid(), name: 'マキアブログ', color: '#9B8EC4', cards: [
-      { id: uid(), title: 'コテレビュー記事', startDate: null, deadline: null, memo: '', subtasks: [] }
-    ]},
-    { id: uid(), name: '案件', color: '#E8963A', cards: [] },
-    { id: uid(), name: '完了', color: '#5B9E78', cards: [] }
-  ];
-  save();
+async function boot() {
+  // Firebase初期化
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
+    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3bCdpgcRcvml9BTvFkONyqNasKxYZEHc",
+      authDomain: "posting-manager-d581a.firebaseapp.com",
+      projectId: "posting-manager-d581a",
+      storageBucket: "posting-manager-d581a.firebasestorage.app",
+      messagingSenderId: "672711583638",
+      appId: "1:672711583638:web:7fe3039e62ad796cb65fb7"
+    };
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+  } catch(e) { console.warn('Firebase init error:', e); }
+
+  await load();
+
+  if (data.lists.length === 0) {
+    data.lists = [
+      { id: uid(), name: 'Instagram', color: '#D4537E', cards: [] },
+      { id: uid(), name: 'マキアブログ', color: '#9B8EC4', cards: [] },
+      { id: uid(), name: '案件', color: '#E8963A', cards: [] },
+      { id: uid(), name: '完了', color: '#5B9E78', cards: [] }
+    ];
+    await save();
+  }
+  render();
 }
-render();
+boot();
 </script>
 </body>
 </html>
