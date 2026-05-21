@@ -151,8 +151,6 @@ header {
 }
 .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
 .form-textarea { resize: none; min-height: 80px; }
-.date-row { display: flex; gap: 12px; }
-.date-row > div { flex: 1; }
 .color-picker { display: flex; gap: 14px; }
 .color-option {
   width: 36px; height: 36px; border-radius: 50%;
@@ -205,6 +203,37 @@ header {
 .tag-input { margin-bottom: 0 !important; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
 .card-tag { font-size: 11px; background: var(--light-pink); color: var(--text-dark); padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+
+/* ── Insight ── */
+.insight-toggle-btn {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--light-pink); border-radius: 10px;
+  background: var(--bg); color: var(--text-meta);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  text-align: left; font-family: inherit;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s;
+}
+.insight-toggle-btn:active { background: var(--light-pink); }
+.insight-fields {
+  margin-top: 10px;
+  background: var(--bg);
+  border: 1.5px solid var(--light-pink);
+  border-radius: 12px;
+  padding: 12px;
+}
+.insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.insight-item { display: flex; flex-direction: column; gap: 5px; }
+.insight-item-full { grid-column: 1 / -1; }
+.insight-label { font-size: 11px; font-weight: 700; color: var(--text-meta); letter-spacing: 0.3px; }
+.insight-input {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--light-pink); border-radius: 9px;
+  font-size: 14px; color: var(--text-dark);
+  background: var(--white); outline: none; font-family: inherit;
+  -webkit-appearance: none;
+}
+.insight-input:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -289,6 +318,43 @@ header {
         <div class="subtask-list" id="subtask-list"></div>
         <button class="add-subtask-btn" onclick="addSubtask()">＋ サブタスクを追加</button>
       </div>
+      <div class="form-group">
+        <button class="insight-toggle-btn" type="button" onclick="toggleInsight()">
+          <span id="insight-toggle-icon">▶</span> 📊 インサイトを入力
+        </button>
+        <div class="insight-fields" id="insight-fields" style="display:none;">
+          <div class="insight-grid">
+            <div class="insight-item">
+              <label class="insight-label">❤️ いいね数</label>
+              <input type="number" class="insight-input" id="ins-likes" placeholder="0" min="0">
+            </div>
+            <div class="insight-item">
+              <label class="insight-label">💬 コメント数</label>
+              <input type="number" class="insight-input" id="ins-comments" placeholder="0" min="0">
+            </div>
+            <div class="insight-item">
+              <label class="insight-label">🔁 リポスト数</label>
+              <input type="number" class="insight-input" id="ins-reposts" placeholder="0" min="0">
+            </div>
+            <div class="insight-item">
+              <label class="insight-label">↗️ シェア数</label>
+              <input type="number" class="insight-input" id="ins-shares" placeholder="0" min="0">
+            </div>
+            <div class="insight-item">
+              <label class="insight-label">🔖 保存数</label>
+              <input type="number" class="insight-input" id="ins-saves" placeholder="0" min="0">
+            </div>
+            <div class="insight-item">
+              <label class="insight-label">👁️ 閲覧数</label>
+              <input type="number" class="insight-input" id="ins-views" placeholder="0" min="0">
+            </div>
+            <div class="insight-item insight-item-full">
+              <label class="insight-label">👤 リーチしたアカウント数</label>
+              <input type="number" class="insight-input" id="ins-reach" placeholder="0" min="0">
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="btn-row" id="card-btn-row">
         <button class="btn btn-secondary" onclick="closeSheet('card-sheet-overlay')">キャンセル</button>
         <button class="btn btn-primary" onclick="saveCard()">保存</button>
@@ -309,7 +375,6 @@ header {
   </div>
 </div>
 
-
 <!-- ── Menu ── -->
 <div id="menu-popup"   class="menu-popup" style="display:none"></div>
 <div id="menu-backdrop" style="position:fixed;inset:0;z-index:199;display:none" onclick="closeMenu()"></div>
@@ -325,9 +390,10 @@ let editingCardListId = null;
 let selectedColor     = '#D4537E';
 let editingSubtasks   = [];
 
+const INSIGHT_KEYS = ['likes','comments','reposts','shares','saves','views','reach'];
+
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
-// LocalStorage（オフライン用バックアップ）
 function saveLocal() {
   try { localStorage.setItem('posting-board-v2', JSON.stringify(data)); } catch(e) {}
 }
@@ -335,7 +401,6 @@ function loadLocal() {
   try { const raw = localStorage.getItem('posting-board-v2'); if (raw) data = JSON.parse(raw); } catch(e) {}
   if (!Array.isArray(data.lists)) data.lists = [];
 }
-// Firestore保存
 async function save() {
   saveLocal();
   try {
@@ -345,7 +410,6 @@ async function save() {
     }
   } catch(e) { console.warn('Firestore save error:', e); }
 }
-// Firestore読み込み
 async function load() {
   loadLocal();
   try {
@@ -434,6 +498,39 @@ function overlayTap(e, id) { if (e.target === document.getElementById(id)) close
 function closeSheet(id) { document.getElementById(id).classList.remove('active'); }
 
 // ════════════════════════════
+// Insight toggle
+// ════════════════════════════
+function toggleInsight() {
+  const fields = document.getElementById('insight-fields');
+  const icon   = document.getElementById('insight-toggle-icon');
+  const isOpen = fields.style.display !== 'none';
+  fields.style.display = isOpen ? 'none' : 'block';
+  icon.textContent = isOpen ? '▶' : '▼';
+}
+function resetInsightFields() {
+  INSIGHT_KEYS.forEach(k => { document.getElementById('ins-'+k).value = ''; });
+  document.getElementById('insight-fields').style.display = 'none';
+  document.getElementById('insight-toggle-icon').textContent = '▶';
+}
+function loadInsightFields(insights) {
+  const ins = insights || {};
+  INSIGHT_KEYS.forEach(k => {
+    document.getElementById('ins-'+k).value = ins[k] != null ? ins[k] : '';
+  });
+  const hasData = INSIGHT_KEYS.some(k => ins[k] != null);
+  document.getElementById('insight-fields').style.display = hasData ? 'block' : 'none';
+  document.getElementById('insight-toggle-icon').textContent = hasData ? '▼' : '▶';
+}
+function collectInsights() {
+  const ins = {};
+  INSIGHT_KEYS.forEach(k => {
+    const v = document.getElementById('ins-'+k).value;
+    ins[k] = v !== '' ? Number(v) : null;
+  });
+  return ins;
+}
+
+// ════════════════════════════
 // List Sheet
 // ════════════════════════════
 function openCreateList() {
@@ -481,6 +578,7 @@ function openCreateCard(listId) {
   document.getElementById('card-tag-1').value = '';
   document.getElementById('card-tag-2').value = '';
   document.getElementById('card-tag-3').value = '';
+  resetInsightFields();
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
     <button class="btn btn-secondary" onclick="closeSheet('card-sheet-overlay')">キャンセル</button>
@@ -499,10 +597,11 @@ function openEditCard(cardId, listId) {
   document.getElementById('card-start-input').value    = card.startDate || '';
   document.getElementById('card-deadline-input').value = card.deadline  || '';
   document.getElementById('card-memo-input').value     = card.memo      || '';
-  const tags = card.tags || ['','',''];
+  const tags = card.tags || [];
   document.getElementById('card-tag-1').value = tags[0] || '';
   document.getElementById('card-tag-2').value = tags[1] || '';
   document.getElementById('card-tag-3').value = tags[2] || '';
+  loadInsightFields(card.insights);
   renderSubtasks();
   document.getElementById('card-btn-row').innerHTML = `
     <button class="btn btn-danger" onclick="confirmDeleteCard()" style="flex:0.7">削除</button>
@@ -513,7 +612,7 @@ function openEditCard(cardId, listId) {
 }
 
 // ════════════════════════════
-// Save Card（シンプル版・ポップアップなし）
+// Save Card
 // ════════════════════════════
 function saveCard() {
   const title = document.getElementById('card-title-input').value.trim();
@@ -525,6 +624,7 @@ function saveCard() {
     deadline:  document.getElementById('card-deadline-input').value || null,
     memo:      document.getElementById('card-memo-input').value.trim() || null,
     tags:      [1,2,3].map(i => document.getElementById('card-tag-'+i).value.trim()).filter(t => t),
+    insights:  collectInsights(),
     subtasks:  editingSubtasks.map(s => ({...s}))
   };
   if (editingCardId) {
@@ -538,47 +638,20 @@ function saveCard() {
 }
 
 // ════════════════════════════
-// Googleカレンダーボタン（日付横）
+// Google Calendar
 // ════════════════════════════
 function openGcalFromInput(type) {
   const inputId = type === 'start' ? 'card-start-input' : 'card-deadline-input';
   const dateVal = document.getElementById(inputId).value;
-  if (!dateVal) {
-    alert('先に日付を入力してください');
-    return;
-  }
-  const title    = document.getElementById('card-title-input').value.trim() || '投稿';
-  const label    = type === 'start' ? '（着手）' : '（締め切り）';
-  const url      = buildGcalUrl(title + label, dateVal);
-  window.open(url, '_blank');
+  if (!dateVal) { alert('先に日付を入力してください'); return; }
+  const title = document.getElementById('card-title-input').value.trim() || '投稿';
+  const label = type === 'start' ? '（着手）' : '（締め切り）';
+  window.open(buildGcalUrl(title + label, dateVal), '_blank');
 }
-
-// ════════════════════════════
-// Google Calendar Dialog
-// ════════════════════════════
-function showGcalDialog(title, startDate, deadline) {
-  let datesHtml = '';
-  if (startDate) datesHtml += `📌 <strong>着手日：</strong>${fmtDateJP(startDate)}（${esc(title)}）<br>`;
-  if (deadline)  datesHtml += `🏁 <strong>締め切り：</strong>${fmtDateJP(deadline)}（${esc(title)}）`;
-  document.getElementById('gcal-dates').innerHTML = datesHtml;
-  document.getElementById('gcal-dialog').classList.add('active');
-}
-
 function buildGcalUrl(title, dateStr) {
-  // dateStr: "2025-05-22" → "20250522T100000/20250522T110000"（10:00〜11:00）
   const d = dateStr.replace(/-/g, '');
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: title,
-    dates: `${d}T100000/${d}T110000`,
-  });
+  const params = new URLSearchParams({ action: 'TEMPLATE', text: title, dates: `${d}T100000/${d}T110000` });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-function fmtDateJP(d) {
-  if (!d) return '';
-  const [y, m, day] = d.split('-');
-  return `${y}年${+m}月${+day}日`;
 }
 
 // ════════════════════════════
@@ -760,7 +833,6 @@ function setupDropZone(el) { /* handled by card touchend */ }
 // Boot
 // ════════════════════════════
 async function boot() {
-  // Firebase初期化
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js');
     const { getFirestore } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
