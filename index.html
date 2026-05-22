@@ -97,7 +97,10 @@ header {
   overscroll-behavior: contain;
   touch-action: pan-y;
 }
-.cards::-webkit-scrollbar { display: none; }
+.cards::-webkit-scrollbar { width: 4px; }
+.cards::-webkit-scrollbar-track { background: transparent; }
+.cards::-webkit-scrollbar-thumb { background: var(--light-pink); border-radius: 4px; }
+.cards::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 .cards-empty { text-align: center; color: var(--light-pink); font-size: 13px; padding: 16px 8px; }
 .card {
   background: var(--bg);
