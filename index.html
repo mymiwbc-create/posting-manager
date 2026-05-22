@@ -442,6 +442,8 @@ function render() {
   board.querySelectorAll('.list').forEach(el => el.remove());
   data.lists.forEach(list => board.insertBefore(buildList(list), addBtn));
   updateHeader();
+  // 常に左端から表示
+  board.scrollLeft = 0;
 }
 function updateHeader() {
   const total = data.lists.reduce((s, l) => s + l.cards.length, 0);
