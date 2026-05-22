@@ -87,15 +87,16 @@ header {
 .list-menu-btn:active { background: var(--light-pink); }
 .cards {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll; /* autoよりscrollが確実 */
   overflow-x: hidden;
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
   touch-action: pan-y;
+  will-change: scroll-position;
 }
 .cards::-webkit-scrollbar { display: none; }
 /* 下矢印スクロールインジケーター */
@@ -127,8 +128,8 @@ header {
   border: 1.5px solid var(--light-pink);
   cursor: pointer;
   transition: box-shadow 0.15s, transform 0.1s;
-  touch-action: pan-y; /* 縦スクロールを許可 */
-  user-select: none;   /* テキスト選択を無効化 */
+  touch-action: manipulation;
+  user-select: none;
   -webkit-user-select: none;
 }
 .card:active { box-shadow: 0 4px 14px var(--shadow); }
@@ -791,36 +792,51 @@ function setupCardDrag(el) {
   let ox, oy, moved = false, longPressTimer = null, longPressed = false;
 
   el.addEventListener('touchstart', e => {
-    ox = e.touches[0].clientX; oy = e.touches[0].clientY;
-    moved = false; longPressed = false;
+    if (e.touches.length > 1) return;
+    ox = e.touches[0].clientX;
+    oy = e.touches[0].clientY;
+    moved = false;
+    longPressed = false;
+    // 600msの長押しでドラッグモード開始
     longPressTimer = setTimeout(() => {
       longPressed = true;
       el.style.transform = 'scale(1.03)';
       el.style.boxShadow = '0 6px 20px rgba(153,53,86,0.3)';
-    }, 500);
+      // 振動フィードバック（対応端末のみ）
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, 600);
   }, { passive: true });
 
-  // touchmoveをpassive:trueにしてスクロール優先
-  // ドラッグ中はdocumentレベルでpreventDefaultを処理
   el.addEventListener('touchmove', e => {
-    const dx = e.touches[0].clientX - ox, dy = e.touches[0].clientY - oy;
-    if (!longPressed && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-      clearTimeout(longPressTimer); longPressTimer = null;
+    if (!e.touches.length) return;
+    const dx = e.touches[0].clientX - ox;
+    const dy = e.touches[0].clientY - oy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    // 少しでも動いたら長押しタイマーをキャンセル→スクロール優先
+    if (!longPressed && dist > 5) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+      return; // スクロールに任せる
     }
-    if (!moved && longPressed && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+
+    // 長押し確定後にある程度動いたらドラッグ開始
+    if (longPressed && !moved && dist > 8) {
       moved = true;
       activeCard = { id: el.dataset.cardId, listId: el.dataset.listId };
       activeCardEl = el;
-      el.style.transform = ''; el.style.boxShadow = '';
+      el.style.transform = '';
+      el.style.boxShadow = '';
       dragClone = el.cloneNode(true);
       dragClone.style.cssText = `position:fixed;width:${el.offsetWidth}px;opacity:0.88;pointer-events:none;z-index:1000;transform:rotate(2deg) scale(1.02);box-shadow:0 10px 30px rgba(0,0,0,0.25);border-radius:12px;`;
       document.body.appendChild(dragClone);
-      placeholder = document.createElement('div'); placeholder.className = 'drop-placeholder';
+      placeholder = document.createElement('div');
+      placeholder.className = 'drop-placeholder';
       el.parentNode.insertBefore(placeholder, el);
       el.classList.add('drag-ghost');
-      // ドラッグ開始後はdocumentでスクロールを止める
       document.addEventListener('touchmove', preventScroll, { passive: false });
     }
+
     if (moved && dragClone) {
       const t = e.touches[0];
       dragClone.style.left = (t.clientX - dragClone.offsetWidth / 2) + 'px';
@@ -830,8 +846,10 @@ function setupCardDrag(el) {
   }, { passive: true });
 
   el.addEventListener('touchend', e => {
-    clearTimeout(longPressTimer); longPressTimer = null;
-    el.style.transform = ''; el.style.boxShadow = '';
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+    el.style.transform = '';
+    el.style.boxShadow = '';
     longPressed = false;
     document.removeEventListener('touchmove', preventScroll);
     if (!moved) return;
