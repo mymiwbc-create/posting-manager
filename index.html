@@ -949,21 +949,27 @@ function getFilteredSortedCards(list) {
 // ════════════════════════════
 let activeCard = null, activeCardEl = null, dragClone = null, placeholder = null;
 let autoScrollRAF = null;
+let autoScrollCX = 0;
 
-function autoScrollBoard(cx) {
+function autoScrollLoop() {
   const board = document.getElementById('board');
   const r = board.getBoundingClientRect();
-  const zone = 60;
+  const zone = 80;   // 感知エリア広め
+  const maxSpeed = 18;
   let speed = 0;
-  if (cx < r.left + zone) speed = -Math.ceil((zone - (cx - r.left)) / 8);
-  else if (cx > r.right - zone) speed = Math.ceil((zone - (r.right - cx)) / 8);
+  const distLeft  = autoScrollCX - r.left;
+  const distRight = r.right - autoScrollCX;
+  if (distLeft < zone)  speed = -Math.round(maxSpeed * (1 - distLeft  / zone));
+  if (distRight < zone) speed =  Math.round(maxSpeed * (1 - distRight / zone));
   if (speed !== 0) {
     board.scrollLeft += speed;
-    autoScrollRAF = requestAnimationFrame(() => autoScrollBoard(cx));
+    movePlaceholder(autoScrollCX, autoScrollCY);
+    autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
     autoScrollRAF = null;
   }
 }
+let autoScrollCY = 0;
 
 function setupCardDrag(el) {
   let ox, oy, moved = false, longPressTimer = null, longPressed = false;
@@ -1011,9 +1017,10 @@ function setupCardDrag(el) {
       dragClone.style.left = (cx - dragClone.offsetWidth / 2) + 'px';
       dragClone.style.top  = (cy - 36) + 'px';
       movePlaceholder(cx, cy);
-      // 端に近づいたら自動スクロール
-      if (autoScrollRAF) cancelAnimationFrame(autoScrollRAF);
-      autoScrollRAF = requestAnimationFrame(() => autoScrollBoard(cx));
+      // 端に近づいたら自動スクロール（滑らかなループ）
+      autoScrollCX = cx;
+      autoScrollCY = cy;
+      if (!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollLoop);
     }
   }, { passive: true });
 
