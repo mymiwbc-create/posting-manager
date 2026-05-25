@@ -951,7 +951,7 @@ let activeCard = null, activeCardEl = null, dragClone = null, placeholder = null
 let autoScrollRAF = null;
 let autoScrollCX = 0;
 let autoScrollCY = 0;
-let isAutoScrolling = false;
+let autoScrollDir = 0; // -1=左, 0=停止, 1=右
 
 function autoScrollLoop() {
   const board = document.getElementById('board');
@@ -964,15 +964,22 @@ function autoScrollLoop() {
   if (distLeft < zone)  speed = -Math.round(maxSpeed * Math.pow(1 - distLeft  / zone, 2));
   if (distRight < zone) speed =  Math.round(maxSpeed * Math.pow(1 - distRight / zone, 2));
 
+  // 方向が反転したら一度止める（左右揺れ防止）
+  const newDir = speed < 0 ? -1 : speed > 0 ? 1 : 0;
+  if (autoScrollDir !== 0 && newDir !== 0 && newDir !== autoScrollDir) {
+    autoScrollDir = 0;
+    autoScrollRAF = null;
+    movePlaceholder(autoScrollCX, autoScrollCY);
+    return;
+  }
+  autoScrollDir = newDir;
+
   if (speed !== 0) {
-    isAutoScrolling = true;
     board.scrollLeft += speed;
-    // スクロール中はプレースホルダーを更新しない（ガクガク防止）
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
-    isAutoScrolling = false;
+    autoScrollDir = 0;
     autoScrollRAF = null;
-    // スクロールが止まったらプレースホルダー位置を確定
     movePlaceholder(autoScrollCX, autoScrollCY);
   }
 }
@@ -1023,12 +1030,13 @@ function setupCardDrag(el) {
       dragClone.style.left = (cx - dragClone.offsetWidth / 2) + 'px';
       dragClone.style.top  = (cy - 36) + 'px';
       movePlaceholder(cx, cy);
-      // プレースホルダー更新（自動スクロール中はスキップしてガクガク防止）
       autoScrollCX = cx;
       autoScrollCY = cy;
-      if (!isAutoScrolling) movePlaceholder(cx, cy);
-      // 端に近づいたら自動スクロール開始
-      if (!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+      // 自動スクロール中はplaceholder更新しない（左右揺れ防止）
+      if (!autoScrollRAF) {
+        movePlaceholder(cx, cy);
+        autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+      }
     }
   }, { passive: true });
 
@@ -1037,6 +1045,7 @@ function setupCardDrag(el) {
     el.style.transform = ''; el.style.boxShadow = '';
     longPressed = false;
     if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+    autoScrollDir = 0;
     document.removeEventListener('touchmove', preventScroll);
     if (!moved) return;
     if (dragClone) { dragClone.remove(); dragClone = null; }
