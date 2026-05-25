@@ -949,44 +949,46 @@ function getFilteredSortedCards(list) {
 // ════════════════════════════
 let activeCard = null, activeCardEl = null, dragClone = null, placeholder = null;
 let autoScrollRAF = null;
-let autoScrollCX = 0;
-let autoScrollCY = 0;
-let lockedScrollDir = 0; // 一度決めたら固定: -1=左, 0=停止, 1=右
+let dragCX = 0, dragCY = 0;
 
 function autoScrollLoop() {
   const board = document.getElementById('board');
   const r = board.getBoundingClientRect();
-  const zone = 72;
-  const maxSpeed = 10;
+  const ZONE = 65;
+  const dl = dragCX - r.left;
+  const dr = r.right - dragCX;
 
-  // 指の位置から本来の方向を計算
-  const distLeft  = autoScrollCX - r.left;
-  const distRight = r.right - autoScrollCX;
-  let wantDir = 0;
-  let speed = 0;
-  if (distLeft < zone)  { wantDir = -1; speed = -Math.round(maxSpeed * Math.pow(1 - distLeft  / zone, 1.5)); }
-  if (distRight < zone) { wantDir =  1; speed =  Math.round(maxSpeed * Math.pow(1 - distRight / zone, 1.5)); }
-
-  // 方向が決まっていない場合のみセット（一度固定したら変えない）
-  if (lockedScrollDir === 0 && wantDir !== 0) lockedScrollDir = wantDir;
-
-  // 固定方向と逆になったら停止してロック解除
-  if (lockedScrollDir !== 0 && wantDir !== 0 && wantDir !== lockedScrollDir) {
-    lockedScrollDir = 0;
+  if (dl < ZONE) {
+    // 左端ゾーン：左にスクロール
+    board.scrollLeft -= Math.max(2, Math.round(12 * (1 - dl / ZONE)));
+    autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+  } else if (dr < ZONE) {
+    // 右端ゾーン：右にスクロール
+    board.scrollLeft += Math.max(2, Math.round(12 * (1 - dr / ZONE)));
+    autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+  } else {
+    // 中央：停止 → プレースホルダー確定
     autoScrollRAF = null;
-    return;
+    movePlaceholder(dragCX, dragCY);
   }
+}
 
-  // ゾーン外に出たら停止
-  if (speed === 0) {
-    lockedScrollDir = 0;
-    autoScrollRAF = null;
-    movePlaceholder(autoScrollCX, autoScrollCY);
-    return;
-  }
+// スクロール停止を検知してplaceholderを更新するタイマー
+let scrollSettleTimer = null;
 
-  board.scrollLeft += speed;
-  autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+function startAutoScroll() {
+  if (!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+  // スクロールが止まったあと150ms後にplaceholderを確定
+  if (scrollSettleTimer) clearTimeout(scrollSettleTimer);
+  scrollSettleTimer = setTimeout(() => {
+    if (!autoScrollRAF) movePlaceholder(dragCX, dragCY);
+    scrollSettleTimer = null;
+  }, 150);
+}
+function stopAutoScroll() {
+  if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+  if (scrollSettleTimer) { clearTimeout(scrollSettleTimer); scrollSettleTimer = null; }
+  movePlaceholder(dragCX, dragCY);
 }
 
 function setupCardDrag(el) {
@@ -1034,20 +1036,15 @@ function setupCardDrag(el) {
     if (moved && dragClone) {
       dragClone.style.left = (cx - dragClone.offsetWidth / 2) + 'px';
       dragClone.style.top  = (cy - 36) + 'px';
-      movePlaceholder(cx, cy);
-      autoScrollCX = cx;
-      autoScrollCY = cy;
-      // スクロール中はplaceholder更新しない
-      if (!autoScrollRAF) {
+      dragCX = cx; dragCY = cy;
+      const board2 = document.getElementById('board');
+      const r2 = board2.getBoundingClientRect();
+      const inZone = cx < r2.left + 65 || cx > r2.right - 65;
+      if (inZone) {
+        startAutoScroll(); // 端：自動スクロール（placeholderは更新しない）
+      } else {
+        stopAutoScroll();  // 中央：スクロール停止してplaceholder更新
         movePlaceholder(cx, cy);
-      }
-      // 自動スクロール常時チェック（RAFが止まっていたら再起動）
-      if (!autoScrollRAF) {
-        const board = document.getElementById('board');
-        const r = board.getBoundingClientRect();
-        if (cx < r.left + 72 || cx > r.right - 72) {
-          autoScrollRAF = requestAnimationFrame(autoScrollLoop);
-        }
       }
     }
   }, { passive: true });
@@ -1056,8 +1053,7 @@ function setupCardDrag(el) {
     clearTimeout(longPressTimer); longPressTimer = null;
     el.style.transform = ''; el.style.boxShadow = '';
     longPressed = false;
-    if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
-    lockedScrollDir = 0;
+    stopAutoScroll();
     document.removeEventListener('touchmove', preventScroll);
     if (!moved) return;
     if (dragClone) { dragClone.remove(); dragClone = null; }
