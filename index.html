@@ -957,37 +957,33 @@ function autoScrollLoop() {
   const ZONE = 65;
   const dl = dragCX - r.left;
   const dr = r.right - dragCX;
+  const prevScroll = board.scrollLeft;
 
   if (dl < ZONE) {
-    // 左端ゾーン：左にスクロール
-    board.scrollLeft -= Math.max(2, Math.round(12 * (1 - dl / ZONE)));
-    autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+    board.scrollLeft -= Math.max(2, Math.round(14 * (1 - dl / ZONE)));
   } else if (dr < ZONE) {
-    // 右端ゾーン：右にスクロール
-    board.scrollLeft += Math.max(2, Math.round(12 * (1 - dr / ZONE)));
+    board.scrollLeft += Math.max(2, Math.round(14 * (1 - dr / ZONE)));
+  }
+
+  const scrolled = board.scrollLeft !== prevScroll;
+
+  if (scrolled) {
+    // スクロール中：次フレームも継続
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
-    // 中央：停止 → プレースホルダー確定
+    // スクロールが止まった（端に到達 or ゾーン外）→ placeholder確定
     autoScrollRAF = null;
     movePlaceholder(dragCX, dragCY);
   }
 }
 
-// スクロール停止を検知してplaceholderを更新するタイマー
-let scrollSettleTimer = null;
-
 function startAutoScroll() {
-  if (!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollLoop);
-  // スクロールが止まったあと150ms後にplaceholderを確定
-  if (scrollSettleTimer) clearTimeout(scrollSettleTimer);
-  scrollSettleTimer = setTimeout(() => {
-    if (!autoScrollRAF) movePlaceholder(dragCX, dragCY);
-    scrollSettleTimer = null;
-  }, 150);
+  if (!autoScrollRAF) {
+    autoScrollRAF = requestAnimationFrame(autoScrollLoop);
+  }
 }
 function stopAutoScroll() {
   if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
-  if (scrollSettleTimer) { clearTimeout(scrollSettleTimer); scrollSettleTimer = null; }
   movePlaceholder(dragCX, dragCY);
 }
 
@@ -1041,10 +1037,11 @@ function setupCardDrag(el) {
       const r2 = board2.getBoundingClientRect();
       const inZone = cx < r2.left + 65 || cx > r2.right - 65;
       if (inZone) {
-        startAutoScroll(); // 端：自動スクロール（placeholderは更新しない）
+        // 端ゾーン：自動スクロール開始
+        startAutoScroll();
       } else {
-        stopAutoScroll();  // 中央：スクロール停止してplaceholder更新
-        movePlaceholder(cx, cy);
+        // 中央：スクロール停止 & placeholder更新
+        stopAutoScroll();
       }
     }
   }, { passive: true });
@@ -1087,14 +1084,35 @@ function movePlaceholder(cx, cy) {
   if (!placeholder) return;
   const allZones = document.querySelectorAll('.cards');
   let targetZone = null;
-  for (const zone of allZones) { const r = zone.getBoundingClientRect(); if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) { targetZone = zone; break; } }
-  if (!targetZone) { for (const zone of allZones) { const r = zone.getBoundingClientRect(); if (cx >= r.left-20 && cx <= r.right+20 && cy >= r.top-20 && cy <= r.bottom+20) { targetZone = zone; break; } } }
+  let minDist = Infinity;
+
+  // 指のX座標に最も近いリストのcardsゾーンを探す（スクロール後でも正確に）
+  for (const zone of allZones) {
+    const r = zone.getBoundingClientRect();
+    const centerX = (r.left + r.right) / 2;
+    const dist = Math.abs(cx - centerX);
+    // Y方向も範囲内かチェック（上下60pxの余裕を持つ）
+    if (cy >= r.top - 60 && cy <= r.bottom + 60 && dist < minDist) {
+      minDist = dist;
+      targetZone = zone;
+    }
+  }
+
   if (!targetZone) return;
+
   const cards = Array.from(targetZone.querySelectorAll('.card:not(.drag-ghost)'));
   let insertBefore = null;
-  for (const card of cards) { const r = card.getBoundingClientRect(); if (cy < r.top + r.height / 2) { insertBefore = card; break; } }
-  if (insertBefore) { targetZone.insertBefore(placeholder, insertBefore); }
-  else { const empty = targetZone.querySelector('.cards-empty'); if (empty) empty.remove(); targetZone.appendChild(placeholder); }
+  for (const card of cards) {
+    const r = card.getBoundingClientRect();
+    if (cy < r.top + r.height / 2) { insertBefore = card; break; }
+  }
+  if (insertBefore) {
+    targetZone.insertBefore(placeholder, insertBefore);
+  } else {
+    const empty = targetZone.querySelector('.cards-empty');
+    if (empty) empty.remove();
+    targetZone.appendChild(placeholder);
+  }
 }
 
 // ════════════════════════════
