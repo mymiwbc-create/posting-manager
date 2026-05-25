@@ -971,9 +971,10 @@ function autoScrollLoop() {
     // スクロール中：次フレームも継続
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
-    // スクロールが止まった（端に到達 or ゾーン外）→ placeholder確定
+    // スクロールが止まった（端到達 or ゾーン外）→ placeholder確定
     autoScrollRAF = null;
-    movePlaceholder(dragCX, dragCY);
+    // 少し待ってから確定（DOMが安定してから）
+    setTimeout(() => movePlaceholder(dragCX, dragCY), 30);
   }
 }
 
@@ -982,9 +983,9 @@ function startAutoScroll() {
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   }
 }
-function stopAutoScroll() {
+function stopAutoScroll(updatePlaceholder = true) {
   if (autoScrollRAF) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
-  movePlaceholder(dragCX, dragCY);
+  if (updatePlaceholder) movePlaceholder(dragCX, dragCY);
 }
 
 function setupCardDrag(el) {
@@ -1050,11 +1051,13 @@ function setupCardDrag(el) {
     clearTimeout(longPressTimer); longPressTimer = null;
     el.style.transform = ''; el.style.boxShadow = '';
     longPressed = false;
-    stopAutoScroll();
+    stopAutoScroll(false); // placeholderは現在位置のままドロップ
     document.removeEventListener('touchmove', preventScroll);
     if (!moved) return;
     if (dragClone) { dragClone.remove(); dragClone = null; }
     if (activeCardEl) activeCardEl.classList.remove('drag-ghost');
+    // 指を離した瞬間の座標でplaceholderを最終確定
+    if (placeholder) movePlaceholder(dragCX, dragCY);
     if (placeholder) {
       const targetListEl = placeholder.closest('.cards');
       if (targetListEl) {
