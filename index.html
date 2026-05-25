@@ -950,26 +950,32 @@ function getFilteredSortedCards(list) {
 let activeCard = null, activeCardEl = null, dragClone = null, placeholder = null;
 let autoScrollRAF = null;
 let autoScrollCX = 0;
+let autoScrollCY = 0;
+let isAutoScrolling = false;
 
 function autoScrollLoop() {
   const board = document.getElementById('board');
   const r = board.getBoundingClientRect();
-  const zone = 80;   // 感知エリア広め
-  const maxSpeed = 18;
+  const zone = 70;
+  const maxSpeed = 12;
   let speed = 0;
   const distLeft  = autoScrollCX - r.left;
   const distRight = r.right - autoScrollCX;
-  if (distLeft < zone)  speed = -Math.round(maxSpeed * (1 - distLeft  / zone));
-  if (distRight < zone) speed =  Math.round(maxSpeed * (1 - distRight / zone));
+  if (distLeft < zone)  speed = -Math.round(maxSpeed * Math.pow(1 - distLeft  / zone, 2));
+  if (distRight < zone) speed =  Math.round(maxSpeed * Math.pow(1 - distRight / zone, 2));
+
   if (speed !== 0) {
+    isAutoScrolling = true;
     board.scrollLeft += speed;
-    movePlaceholder(autoScrollCX, autoScrollCY);
+    // スクロール中はプレースホルダーを更新しない（ガクガク防止）
     autoScrollRAF = requestAnimationFrame(autoScrollLoop);
   } else {
+    isAutoScrolling = false;
     autoScrollRAF = null;
+    // スクロールが止まったらプレースホルダー位置を確定
+    movePlaceholder(autoScrollCX, autoScrollCY);
   }
 }
-let autoScrollCY = 0;
 
 function setupCardDrag(el) {
   let ox, oy, moved = false, longPressTimer = null, longPressed = false;
@@ -1017,9 +1023,11 @@ function setupCardDrag(el) {
       dragClone.style.left = (cx - dragClone.offsetWidth / 2) + 'px';
       dragClone.style.top  = (cy - 36) + 'px';
       movePlaceholder(cx, cy);
-      // 端に近づいたら自動スクロール（滑らかなループ）
+      // プレースホルダー更新（自動スクロール中はスキップしてガクガク防止）
       autoScrollCX = cx;
       autoScrollCY = cy;
+      if (!isAutoScrolling) movePlaceholder(cx, cy);
+      // 端に近づいたら自動スクロール開始
       if (!autoScrollRAF) autoScrollRAF = requestAnimationFrame(autoScrollLoop);
     }
   }, { passive: true });
